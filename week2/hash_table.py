@@ -16,10 +16,15 @@ import random, sys, time
 def calculate_hash(key):
     assert type(key) == str
     # Note: This is not a good hash function. Make it better!
-    hash = 0
-    for i in key:
-        hash += ord(i)
-    return hash
+    # hash = 0
+    # for i in key:
+    #     hash += ord(i)
+    # return hash
+    hash_number = 1
+    for char in key:
+        hash_number = hash_number * ord(char)
+        #print(hash_number)
+    return hash_number
 
 
 # An item object that represents one key - value pair in the hash table.
@@ -33,6 +38,7 @@ class Item:
         self.key = key
         self.value = value
         self.next = next
+        self.backets = []
 
 
 # The main data structure of the hash table that stores key - value pairs.
@@ -51,7 +57,8 @@ class HashTable:
         self.bucket_size = 97
         self.buckets = [None] * self.bucket_size
         self.item_count = 0
-
+        #self.hash_table_list = []
+        
     # Put an item to the hash table. If the key already exists, the
     # corresponding value is updated to a new value.
     #
@@ -64,6 +71,37 @@ class HashTable:
         check_size(self.size(), self.bucket_size)  # Don't remove this code.
         #------------------------#
         # Write your code here!  #
+
+        element = (key, value)
+
+        hash_number = calculate_hash(key)
+        hash = hash_number % self.bucket_size
+
+        if self.buckets[hash] == None: #初めて値を入れるとき＝elementを入れる
+            # print("None")
+            self.buckets[hash] = element
+            # print(self.buckets)
+        elif self.buckets[hash][0] == key: #同じkeyが既に入っていた時＝valueを書き換える
+            self.buckets[hash] = list(self.buckets[hash])
+            self.buckets[hash][1] = value
+            return False
+        elif not isinstance(self.buckets[hash],list): 
+            #同じハッシュ値に複数の値を入れたいので、リストを作る
+            #ここを連結リストにする
+            # print("elif")
+            self.hash_table_list = []
+            now_word = self.buckets[hash]
+            self.hash_table_list.append(now_word)
+            self.hash_table_list.append(element)
+            self.buckets[hash] = self.hash_table_list
+        else:#同じハッシュ値のリストの最後、に値を追加
+            # print("else")
+            self.buckets[hash].append(element) 
+
+        self.item_count = self.item_count + 1
+        #print(f"self.buckets = {self.buckets}")
+        print(f"put True {key}")
+        print(self.buckets)
         #------------------------#
         return True
 
@@ -77,8 +115,35 @@ class HashTable:
         check_size(self.size(), self.bucket_size)  # Don't remove this code.
         #------------------------#
         # Write your code here!  #
+
+        hash_number = calculate_hash(key)
+        hash = hash_number % self.bucket_size
+
+        if self.buckets[hash] != None:
+            if self.buckets[hash][0] == key: #ハッシュ値が同じ＆keyも同じ時の処理
+
+                #print(f"値がある＝Trueのとき　{self.buckets[hash][1]}")
+                print(self.buckets)
+                print(f"1 get True {self.buckets[hash][1]}")
+                return (self.buckets[hash][1], True)
+            
+            elif self.buckets[hash] == self.hash_table_list:
+                for element in self.buckets[hash] :
+                    if element[0] == key:
+
+                        print(self.buckets)
+                        print(f"2 get True {element[1]}")
+                        return (element[1], True)
+                    
+            else:#ハッシュ値が同じ＆違うkeyが入ってた時
+                print(self.buckets)
+                print(" get None 1")
+                return (None, False)
+        else:
+            print("get None 2")
+
         #------------------------#
-        return (None, False)
+            return (None, False)
 
     # Delete an item from the hash table.
     #
@@ -88,9 +153,32 @@ class HashTable:
     def delete(self, key):
         assert type(key) == str
         #------------------------#
-        # Write your code here!  #
+        # Write your code here!  
+        
+        hash_number = calculate_hash(key)
+        hash = hash_number % self.bucket_size
+
+        if self.buckets[hash] != None: #対応する位置に値が入っている時
+            if self.buckets[hash][0] == key:
+                self.buckets[hash] = None
+                self.item_count = self.item_count - 1
+
+                print(f"Delete{self.buckets[hash]} and {key}")
+                
+                return True
+            elif self.buckets[hash] == self.hash_table_list:#複数のkey:valueペアが入っている時
+                for i, element in enumerate(self.buckets[hash]):
+                    #今ただのリストになってるからハッシュテーブルに直したい
+                    if element is not None and element[0] == key: 
+                        self.buckets[hash].pop(i)
+                        self.item_count -= self.item_count
+                        return True
+            else:
+                return False
+        else:
+            return False
+
         #------------------------#
-        pass
 
     # Return the total number of items in the hash table.
     def size(self):
