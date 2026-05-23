@@ -126,6 +126,7 @@ class HashTable:
         if self.buckets[hash] != None: #目的の位置のテーブルにitemがないときは即Noneを反す
             if self.buckets[hash].key == key: #
                 return (self.buckets[hash].value, True)
+
             else: #同じハッシュ値の中に異なるkeyが入ってた時
                 #nextをたどって探す
                 current = self.buckets[hash]
