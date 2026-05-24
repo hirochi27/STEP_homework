@@ -20,9 +20,22 @@ def calculate_hash(key):
     # for i in key:
     #     hash += ord(i)
     # return hash
+
+    # #素数を計算する
+    # number = []
+    # for i in range(2, 11):
+    #     flag = False
+    #     for j in range(2, i): #i 未満
+    #         if i % j == 0:
+    #             flag = False
+    #         else:
+    #             flag = True
+    #     if flag == False:
+            
+    #indexとハッシュ値を足してから、かけてみる
     hash_number = 1
-    for char in key:
-        hash_number = hash_number * ord(char)
+    for ind, char in enumerate(key):
+        hash_number = hash_number * (ord(char) + ind)
         #print(hash_number)
     return hash_number
 
@@ -108,6 +121,7 @@ class HashTable:
                         item = item.next
 
                         self.put(put_item.key, put_item.value)
+                print(f"2倍　現在のサイズ{self.bucket_size}")
 
 
                     
@@ -189,6 +203,7 @@ class HashTable:
                                     while item != None:
                                         self.put(item.key, item.value)  
                                         item = item.next
+                                print(f"1/2倍　現在のサイズ{self.bucket_size}")
                                 
                         return(True)
                     else:
@@ -207,6 +222,7 @@ class HashTable:
                                     while item != None:
                                         self.put(item.key, item.value)  
                                         item = item.next
+                                print(f"1/2倍　現在のサイズ{self.bucket_size}")
 
                         return (True)
                 prev = current
