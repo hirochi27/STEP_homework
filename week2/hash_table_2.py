@@ -71,7 +71,7 @@ class HashTable:
         # Write your code here!  #
         hash_number = calculate_hash(key)
         hash = hash_number % self.bucket_size
-
+        #print(len(self.buckets))
         new_item = Item(key,value,None)
         
         if self.buckets[hash] == None:#テーブルにkeyがない時、新しく追加
@@ -94,7 +94,21 @@ class HashTable:
             prev.next = new_item
             self.item_count += 1
             # print(self.buckets)
-            return True
+
+            #要素数/テーブルサイズが70%を上回ったら、テーブルサイズを2倍にする
+            if self.item_count  > self.bucket_size * 0.7:
+                self.bucket_size = self.bucket_size * 2  
+                old_buckets = self.buckets   #再ハッシュ前のテーブルを対比してから、self.bucketsを書き換える
+                self.buckets = self.bucket_size * [None]                   
+                #2倍にしたハッシュテーブルに値を入れ直す
+                for item in old_buckets:
+                    while item != None:
+                        put_item = item
+                        item = item.next
+
+                        self.put(put_item.key, put_item.value)
+
+
                     
             # current = 
             # if self.buckets[hash].next == None:#ハッシュテーブルに値が1つの時,新しくnextに繋げる
@@ -105,7 +119,7 @@ class HashTable:
             #     last_item.next = new_item
             #     last_item = last_item.next
 
-        self.item_count = self.item_count + 1 
+
         
         #------------------------#
         return True
@@ -124,9 +138,10 @@ class HashTable:
         hash = hash_number % self.bucket_size
 
         if self.buckets[hash] != None: #目的の位置のテーブルにitemがないときは即Noneを反す
-            if self.buckets[hash].key == key: #
+            #print("return None")
+            if self.buckets[hash].key == key: 
                 return (self.buckets[hash].value, True)
-
+             
             else: #同じハッシュ値の中に異なるkeyが入ってた時
                 #nextをたどって探す
                 current = self.buckets[hash]
@@ -135,7 +150,6 @@ class HashTable:
                     if current.key == key:   
                         return (current.value, True)
                     current = current.next
-
         #------------------------#
         return (None, False)
 
