@@ -87,17 +87,20 @@ class HashTable:
         #print(len(self.buckets))
         new_item = Item(key,value,None)
         
-        if self.buckets[hash] == None:#テーブルにkeyがない時、新しく追加
+
+        #if : テーブルにkeyがない時、新しく追加
+        #elif : 既にkeyがある時、valueを上書き
+        #else :　異なるkeyがあるとき、連結部分に同じkeyがないか探す。ない場合は最後尾に連結させる
+        if self.buckets[hash] == None:
             self.buckets[hash] = new_item
             self.item_count += 1
             # print(self.buckets)
             return True
-        elif self.buckets[hash].key == new_item.key:#既にkeyがある時、valueを上書き
+        elif self.buckets[hash].key == new_item.key:
             self.buckets[hash].value = new_item.value
             return False
-        else: #異なるkeyがあるとき、連結部分に同じkeyがないか探す
-            #ない場合は最後尾に連結させる
-            current = self.buckets[hash]
+        else: 
+            current = self.buckets[hash] #current: 元のテーブルを壊さないように、currentに避難させて確認
             while current != None:
                 if current.key == new_item.key:
                     current.value = new_item.value
@@ -108,20 +111,23 @@ class HashTable:
             self.item_count += 1
             # print(self.buckets)
 
+
             #要素数/テーブルサイズが70%を上回ったら、テーブルサイズを2倍にする
+            #old_buckets : 再ハッシュ前のテーブルを退避してから、self.bucketsを書き換える
+                #その後2倍にしたハッシュテーブルに値を入れ直す
             if self.item_count  > self.bucket_size * 0.7:
                 self.bucket_size = self.bucket_size * 2  
-                #old_bucketsに再ハッシュ前のテーブルを退避してから、self.bucketsを書き換える
+                
                 old_buckets = self.buckets   
-                self.buckets = self.bucket_size * [None]                   
-                #2倍にしたハッシュテーブルに値を入れ直す
+                self.buckets = self.bucket_size * [None]
+                #self.item_count = 0                   
                 for item in old_buckets:
                     while item != None:
                         put_item = item
                         item = item.next
-
                         self.put(put_item.key, put_item.value)
                 print(f"2倍　現在のサイズ{self.bucket_size}")
+                print(self.item_count)
 
 
                     
@@ -151,14 +157,15 @@ class HashTable:
         # Write your code here!  #
         hash_number = calculate_hash(key)
         hash = hash_number % self.bucket_size
-
-        if self.buckets[hash] != None: #目的の位置のテーブルにitemがないときは即Noneを反す
+        
+        #if : 目的の位置のテーブルにitemがないとき、Noneを反す
+            #if : itemを見つけたらTrueを反す
+            #else : 同じハッシュ値の中に異なるkeyが入ってた時、nextをたどって探す
+        if self.buckets[hash] != None: 
             #print("return None")
             if self.buckets[hash].key == key: 
                 return (self.buckets[hash].value, True)
-             
-            else: #同じハッシュ値の中に異なるkeyが入ってた時
-                #nextをたどって探す
+            else: 
                 #current : 元のテーブル＝self.buketsを壊さないために、複製しておくための関数
                 current = self.buckets[hash]
                 while current != None:
@@ -181,30 +188,33 @@ class HashTable:
         hash_number = calculate_hash(key)
         hash = hash_number % self.bucket_size
 
-        if self.buckets[hash] != None: #hashの位置に値が入ってない時はすぐFalseを返す
+        #if : hashの位置に値が入ってない時はすぐFalseを返す
+        if self.buckets[hash] != None: 
             current = self.buckets[hash]
 
-            #現在見てるitemがNoneになるまで,deleteしたいkeyがあるか確かめる
+            #while : 現在見てるitemがNoneになるまで,deleteしたいkeyがあるか確かめる : 無かったらFalse
             while current is not None:
                 if current.key == key:#消したいkeyを見つけたらcurrentの1つ前のnextと次のitemを繋げる
                     if current == self.buckets[hash]:
                         self.buckets[hash] = self.buckets[hash].next
                         self.item_count -= 1
+                        
                         #もしitem数がバケットサイズの30％未満になったら、バケットサイズを半分にする
                         if self.bucket_size > 97:
                             if self.item_count < self.bucket_size * 0.3:
                                 self.bucket_size = self.bucket_size // 2
-
+                                #self.item_count = 0
                                 #再ハッシュのための値を保存するため、現在のテーブルをolr_bucketに退避
                                 old_buckets = self.buckets
                                 self.buckets = self.bucket_size * [None]
                                 #新しいテーブルに値を入れ直す
                                 for item in old_buckets:
                                     while item != None:
-                                        self.put(item.key, item.value)  
+                                        self.put(item.key, item.value)              
                                         item = item.next
+                                        
                                 print(f"1/2倍　現在のサイズ{self.bucket_size}")
-                                
+                                print(self.item_count)
                         return(True)
                     else:
                         prev.next = current.next
@@ -213,7 +223,7 @@ class HashTable:
                         if self.bucket_size > 97:
                             if self.item_count < self.bucket_size * 0.3:
                                 self.bucket_size = self.bucket_size // 2
-
+                                #self.item_count = 0
                                 #再ハッシュのための値を保存するため、現在のテーブルをolr_bucketに退避
                                 old_buckets = self.buckets
                                 self.buckets = self.bucket_size * [None]
@@ -221,12 +231,14 @@ class HashTable:
                                 for item in old_buckets:
                                     while item != None:
                                         self.put(item.key, item.value)  
-                                        item = item.next
+                                        item = item.next           
                                 print(f"1/2倍　現在のサイズ{self.bucket_size}")
+                                print(self.item_count)
 
                         return (True)
                 prev = current
                 current = current.next
+            return False
        
         else:
             return False
