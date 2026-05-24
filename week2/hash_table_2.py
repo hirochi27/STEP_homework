@@ -98,7 +98,8 @@ class HashTable:
             #要素数/テーブルサイズが70%を上回ったら、テーブルサイズを2倍にする
             if self.item_count  > self.bucket_size * 0.7:
                 self.bucket_size = self.bucket_size * 2  
-                old_buckets = self.buckets   #再ハッシュ前のテーブルを対比してから、self.bucketsを書き換える
+                #old_bucketsに再ハッシュ前のテーブルを退避してから、self.bucketsを書き換える
+                old_buckets = self.buckets   
                 self.buckets = self.bucket_size * [None]                   
                 #2倍にしたハッシュテーブルに値を入れ直す
                 for item in old_buckets:
@@ -144,6 +145,7 @@ class HashTable:
              
             else: #同じハッシュ値の中に異なるkeyが入ってた時
                 #nextをたどって探す
+                #current : 元のテーブル＝self.buketsを壊さないために、複製しておくための関数
                 current = self.buckets[hash]
                 while current != None:
                     #print(f"カレントはこれ！！{current.key}")
@@ -174,10 +176,38 @@ class HashTable:
                     if current == self.buckets[hash]:
                         self.buckets[hash] = self.buckets[hash].next
                         self.item_count -= 1
+                        #もしitem数がバケットサイズの30％未満になったら、バケットサイズを半分にする
+                        if self.bucket_size > 97:
+                            if self.item_count < self.bucket_size * 0.3:
+                                self.bucket_size = self.bucket_size // 2
+
+                                #再ハッシュのための値を保存するため、現在のテーブルをolr_bucketに退避
+                                old_buckets = self.buckets
+                                self.buckets = self.bucket_size * [None]
+                                #新しいテーブルに値を入れ直す
+                                for item in old_buckets:
+                                    while item != None:
+                                        self.put(item.key, item.value)  
+                                        item = item.next
+                                
                         return(True)
                     else:
                         prev.next = current.next
                         self.item_count -= 1
+
+                        if self.bucket_size > 97:
+                            if self.item_count < self.bucket_size * 0.3:
+                                self.bucket_size = self.bucket_size // 2
+
+                                #再ハッシュのための値を保存するため、現在のテーブルをolr_bucketに退避
+                                old_buckets = self.buckets
+                                self.buckets = self.bucket_size * [None]
+                                #新しいテーブルに値を入れ直す
+                                for item in old_buckets:
+                                    while item != None:
+                                        self.put(item.key, item.value)  
+                                        item = item.next
+
                         return (True)
                 prev = current
                 current = current.next
