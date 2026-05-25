@@ -117,6 +117,8 @@ class HashTable:
                 #その後2倍にしたハッシュテーブルに値を入れ直す
             if self.item_count  > self.bucket_size * 0.7:
                 self.bucket_size = self.bucket_size * 2  
+                if self.bucket_size % 2 == 0: #バケット数が偶数になった場合、奇数にする
+                    self.bucket_size += 1        
                 
                 old_buckets = self.buckets   
                 self.buckets = self.bucket_size * [None]

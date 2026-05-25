@@ -251,3 +251,11 @@ Functional tests passed!
 88 0.318210
 89 0.339040
 90 0.329586
+
+Traceback (most recent call last):
+  File "/home/hirochi/STEP_homework/week2/hash_table_2.py", line 367, in <module>
+    performance_test()
+  File "/home/hirochi/STEP_homework/week2/hash_table_2.py", line 361, in performance_test
+    assert hash_table.size() == 0
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
