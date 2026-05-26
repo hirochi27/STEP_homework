@@ -215,6 +215,7 @@ class HashTable:
             current = self.buckets[hash]
 
 ##putに渡すとputの中で再ハッシュが始まる可能性があるので、直書きしても良いかも
+###直書きした！
 
 
             #while : 現在見てるitemがNoneになるまで,deleteしたいkeyがあるか確かめる : 無かったらFalse
